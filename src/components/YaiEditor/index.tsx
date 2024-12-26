@@ -6,6 +6,7 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { EditorState } from 'lexical';
 import { MentionsPlugin, MentionItem } from './MentionsList';
+import styles from './style/editor.module.css';
 
 export interface YaiEditorProps {
   onChange?: (editorState: EditorState) => void;
@@ -13,12 +14,11 @@ export interface YaiEditorProps {
 }
 
 const theme = {
-  // Theme config object
-  paragraph: 'yai-editor-paragraph',
+  paragraph: styles.paragraph,
   text: {
-    bold: 'yai-editor-text-bold',
-    italic: 'yai-editor-text-italic',
-    underline: 'yai-editor-text-underline',
+    bold: styles.textBold,
+    italic: styles.textItalic,
+    underline: styles.textUnderline,
   },
 };
 
@@ -31,12 +31,13 @@ const initialConfig = {
 };
 
 export function YaiEditor({ onChange, mentions = [] }: YaiEditorProps) {
+  console.log(' [YaiEditor] mentions', mentions);
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="yai-editor-container">
+      <div className={styles.container}>
         <RichTextPlugin
-          contentEditable={<ContentEditable className="yai-editor-input" />}
-          placeholder={<div className="yai-editor-placeholder">Enter some text...</div>}
+          contentEditable={<ContentEditable className={styles.input} />}
+          placeholder={<div className={styles.placeholder}>Enter some text...</div>}
           ErrorBoundary={LexicalErrorBoundary}
         />
         <HistoryPlugin />

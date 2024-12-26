@@ -8,6 +8,7 @@ import { TextNode, $createTextNode } from 'lexical';
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
+import styles from './style/mentions.module.css';
 
 export interface MentionItem {
   id: string;
@@ -54,7 +55,7 @@ function MentionMenuItem({
   return (
     <div
       ref={itemRef}
-      className={`yai-editor-mentions-item${isSelected ? ' selected' : ''}`}
+      className={clsx(styles.item, isSelected && styles.selected)}
       onClick={onClick}
       onMouseEnter={() => setHighlightedIndex(index)}
       aria-selected={isSelected}
@@ -64,7 +65,7 @@ function MentionMenuItem({
         <img
           src={option.avatar}
           alt={option.name}
-          className="yai-editor-mentions-avatar"
+          className={styles.avatar}
         />
       )}
       <span>{option.name}</span>
@@ -82,18 +83,23 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    console.log(' [MentionsPlugin] items update', items);
+  }, [items]);
+
   const options = useMemo(() => {
-    if (queryString === null) return [];
-    
-    if (queryString === '') {
+    console.log(' [MentionsPlugin] queryString', queryString);
+    if (queryString === null) {
+      console.log(' [MentionsPlugin] items', items);
       return items.map((item) => new MentionMenuOption(item.name, item.id, item.avatar));
     }
 
-    const searchText = queryString.toLowerCase();
+    const searchText = queryString.toLowerCase().trim();
     return items
       .filter((item) => item.name.toLowerCase().includes(searchText))
       .map((item) => new MentionMenuOption(item.name, item.id, item.avatar));
   }, [items, queryString]);
+  console.log(' [MentionsPlugin] options', options);
 
   useEffect(() => {
     setHighlightedIndex(0);
@@ -113,13 +119,14 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
   );
 
   const checkForTriggerMatch = useCallback((text: string): MenuTextMatch | null => {
-    const match = text.match(/@(\w*)$/);
+    const match = text.match(/@(\w*|$)/);
+    console.log(' [MentionsPlugin] checkForTriggerMatch', match);
     if (!match) {
       return null;
     }
     return {
-      leadOffset: match[0].length - match[1].length - 1,
-      matchingString: match[1],
+      leadOffset: match[0].length - (match[1] ? match[1].length : 0) - 1,
+      matchingString: match[1] || '',
       replaceableString: match[0],
     };
   }, []);
@@ -133,33 +140,29 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
       menuRenderFn={(
         anchorElementRef,
         { selectedIndex, selectOptionAndCleanUp, options }
-      ) =>
-        anchorElementRef.current
+      ) => {
+        console.log(' [MentionsPlugin] anchorElementRef', anchorElementRef, options);
+        return anchorElementRef.current
           ? createPortal(
-                // Use an outer container that is always the same height, which is the
-                // max height of the visible menu. This ensures that the menu does not
-                // flip orientation as the user is typing if it suddenly has less
-                // results. It also makes the positioning less glitchy.
-                <div data-at-mention-menu="" className={clsx('styles.popoverDimensions')}>
-                    <div className={'styles.popover'}>
-                        {options.map((option, index) => {
-                            return <MentionMenuItem
-                            key={option.key}
-                            isSelected={index === selectedIndex}
-                            onClick={() => {
-                              selectOptionAndCleanUp(option);
-                            }}
-                            option={option}
-                            index={index}
-                            setHighlightedIndex={setHighlightedIndex}
-                        />
-                        })}
-                    </div>
-                </div>,
-                anchorElementRef.current
+              <div className={styles.list}>
+              {options.map((option, index) => (
+                <MentionMenuItem
+                  key={option.key}
+                  isSelected={index === selectedIndex}
+                  onClick={() => {
+                    selectOptionAndCleanUp(option);
+                  }}
+                  option={option}
+                  index={index}
+                  setHighlightedIndex={setHighlightedIndex}
+                />
+              ))}
+              </div>,
+              anchorElementRef.current
             )
           : null
       }
+    }
     />
   );
 } 

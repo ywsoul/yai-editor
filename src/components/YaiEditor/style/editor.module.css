@@ -1,0 +1,29 @@
+.container {
+  @apply relative border border-gray-300 rounded p-3 min-h-[200px] font-sans;
+}
+
+.input {
+  @apply min-h-[150px] resize-none text-[15px] relative p-2 overflow-auto outline-none;
+  tab-size: 1;
+  caret-color: rgb(5, 5, 5);
+}
+
+.placeholder {
+  @apply text-gray-400 overflow-hidden absolute truncate top-5 left-5 text-[15px] select-none inline-block pointer-events-none;
+}
+
+.paragraph {
+  @apply m-0 relative;
+}
+
+.textBold {
+  @apply font-bold;
+}
+
+.textItalic {
+  @apply italic;
+}
+
+.textUnderline {
+  @apply underline;
+} 
