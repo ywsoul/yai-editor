@@ -6,6 +6,7 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { EditorState } from 'lexical';
 import { MentionsPlugin, MentionItem } from './MentionsList';
+import { MentionNode } from './MentionNode';
 import styles from './style/editor.module.css';
 
 export interface YaiEditorProps {
@@ -25,6 +26,7 @@ const theme = {
 const initialConfig = {
   namespace: 'YaiEditor',
   theme,
+  nodes: [MentionNode],
   onError: (error: Error) => {
     console.error(error);
   },

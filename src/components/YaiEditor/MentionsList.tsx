@@ -4,6 +4,7 @@ import { TextNode, $createTextNode, LexicalEditor, RangeSelection } from 'lexica
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { MentionMenuItem, MentionMenuOption, MentionMenuData } from '../MentionMenu';
+import { $createMentionNode } from './MentionNode';
 import styles from '../MentionMenu/style/mentions.module.css';
 
 export interface MentionItem extends MentionMenuData {}
@@ -31,11 +32,21 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
   const onSelectOption = useCallback(
     (selectedOption: MentionMenuOption, nodeToReplace: TextNode | null, closeMenu: () => void) => {
       editor.update(() => {
-        const mentionNode = $createTextNode(` @${selectedOption.metionText} `);
+        const displayText = ` @${selectedOption.metionText} `;
+        // Split into leading space, mention text, and trailing space
+        const [leadingSpace, ...rest] = displayText.split('@');
+        const mentionContent = rest.join('@').trim();
+        
+        const leadingSpaceNode = $createTextNode(leadingSpace);
+        const mentionNode = $createMentionNode('@' + mentionContent);
+        const trailingSpaceNode = $createTextNode(' ');
+        
         if (nodeToReplace) {
-          nodeToReplace.replace(mentionNode);
+          nodeToReplace.replace(leadingSpaceNode);
+          leadingSpaceNode.insertAfter(mentionNode);
+          mentionNode.insertAfter(trailingSpaceNode);
         }
-        mentionNode.select(mentionNode.getTextContent().length, mentionNode.getTextContent().length);
+        trailingSpaceNode.select();
         closeMenu();
       });
     },
