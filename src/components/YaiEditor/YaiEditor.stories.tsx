@@ -20,6 +20,7 @@ const mentionItems = [
     icon: <UserIcon className="w-4 h-4 text-blue-500" />,
     title: 'John Doe',
     subTitle: 'Software Engineer',
+    metionText: 'JohnDoeForMetion',
     type: 'user',
   },
   {
@@ -27,6 +28,7 @@ const mentionItems = [
     icon: <UserIcon className="w-4 h-4 text-blue-500" />,
     title: 'Jane Smith',
     subTitle: 'Product Manager',
+    metionText: 'JaneSmithForMetion',
     type: 'user',
   },
   {
@@ -34,6 +36,7 @@ const mentionItems = [
     icon: <HashtagIcon className="w-4 h-4 text-green-500" />,
     title: 'frontend',
     subTitle: '1.2k members',
+    metionText: 'frontendForMetion',
     type: 'channel',
   },
   {
@@ -41,6 +44,7 @@ const mentionItems = [
     icon: <AtSymbolIcon className="w-4 h-4 text-purple-500" />,
     title: 'everyone',
     subTitle: 'Notify all members',
+    metionText: 'everyoneForMetion',
     type: 'group',
   },
 ];

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MentionMenuItem, MentionMenuOption } from './index';
+import { MentionMenuItem, MentionMenuOption, MentionMenuData } from './index';
 import { UserIcon, HashtagIcon, AtSymbolIcon } from '@heroicons/react/24/outline';
 import styles from './style/mentions.module.css';
 
@@ -26,6 +26,7 @@ const menuItems = [
     title: 'John Doe',
     subTitle: 'Software Engineer',
     type: 'user',
+    metionText: 'JohnDoeForMetion',
   },
   {
     id: '2',
@@ -33,6 +34,7 @@ const menuItems = [
     title: 'Jane Smith',
     subTitle: 'Product Manager',
     type: 'user',
+    metionText: 'JaneSmithForMetion',
   },
   {
     id: '3',
@@ -40,6 +42,7 @@ const menuItems = [
     title: 'frontend',
     subTitle: '1.2k members',
     type: 'channel',
+    metionText: 'frontendForMetion',
   },
   {
     id: '4',
@@ -47,9 +50,10 @@ const menuItems = [
     title: 'everyone',
     subTitle: 'Notify all members',
     type: 'group',
+    metionText: 'everyoneForMetion',
   },
 
-];
+] as MentionMenuData[];
 
 
 export const MenuListNormal: Story = {
