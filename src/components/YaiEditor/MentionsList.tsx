@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { LexicalTypeaheadMenuPlugin, MenuTextMatch, SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import { TextNode, $createTextNode, } from 'lexical';
+import { LexicalTypeaheadMenuPlugin, MenuTextMatch } from '@lexical/react/LexicalTypeaheadMenuPlugin';
+import { TextNode, $createTextNode, LexicalEditor, RangeSelection } from 'lexical';
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { MentionMenuItem, MentionMenuOption, MentionMenuData } from '../MentionMenu';
@@ -15,27 +15,18 @@ interface MentionsPluginProps {
 export function MentionsPlugin({ items }: MentionsPluginProps) {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
-  // const [highlightedIndex, setHighlightedIndex] = useState(0);
   const ref = useRef<{ items: MentionItem[] }>({ items: [] });
-
-  useEffect(() => {
-    ref.current.items = items;
-  }, [items]);
 
   const options = useMemo(() => {
     if (queryString === null) {
-      return ref.current.items.map((item) => new MentionMenuOption(item));
+      return items.map((item) => new MentionMenuOption(item));
     }
 
     const searchText = queryString.toLowerCase().trim();
-    return ref.current.items
+    return items
       .filter((item) => item.title.toLowerCase().includes(searchText))
       .map((item) => new MentionMenuOption(item));
   }, [queryString]);
-
-  // useEffect(() => {
-  //   setHighlightedIndex(0);
-  // }, [queryString]);
 
   const onSelectOption = useCallback(
     (selectedOption: MentionMenuOption, nodeToReplace: TextNode | null, closeMenu: () => void) => {
@@ -50,13 +41,37 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
     [editor]
   );
 
-  const checkForTriggerMatch = useCallback((text: string): MenuTextMatch | null => {
-    const match = text.match(/@(\w*|$)/);
+  const checkForTriggerMatch = useCallback((text: string, editor: LexicalEditor): MenuTextMatch | null => {
+    const selection = editor.getEditorState().read(() => editor._editorState._selection) as RangeSelection;
+    if (!selection || !selection.isCollapsed()) {
+      return null;
+    }
+
+    const cursorOffset = selection.anchor.offset;
+    
+    // Find left boundary (position a)
+    let leftPos = cursorOffset;
+    while (leftPos > 0 && text[leftPos - 1].trim() !== '') {
+      leftPos--;
+    }
+    
+    // Find right boundary (position b)
+    let rightPos = cursorOffset;
+    while (rightPos < text.length && text[rightPos].trim() !== '') {
+      rightPos++;
+    }
+    
+    // Extract the text between boundaries
+    const textToCheck = text.slice(leftPos, rightPos);
+    const match = textToCheck.match(/@(\w*|$)/);
+    
+    console.log('[MentionsList] match', textToCheck, match);
     if (!match) {
       return null;
     }
+
     return {
-      leadOffset: match[0].length - (match[1] ? match[1].length : 0) - 1,
+      leadOffset: leftPos + match[0].length - (match[1] ? match[1].length : 0) - 1,
       matchingString: match[1] || '',
       replaceableString: match[0],
     };
