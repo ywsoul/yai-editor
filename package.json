@@ -21,6 +21,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@lexical/react": "^0.22.0",
     "lexical": "^0.22.0",
     "react": "^18.2.0",
