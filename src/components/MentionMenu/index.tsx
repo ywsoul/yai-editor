@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import clsx from 'clsx';
 import styles from './style/mentions.module.css';
 
+// TODO: 这里的 Metion 最好是能注册类型，自定义注册类型，自定义注册搜索回调
 export interface MentionMenuData {
   id: string;
   icon?: ReactNode;
@@ -11,6 +12,7 @@ export interface MentionMenuData {
   type: string;
   nextType?: string;
   data?: any;
+  metionText?: string;
 }
 
 export class MentionMenuOption extends MenuOption {
@@ -21,6 +23,7 @@ export class MentionMenuOption extends MenuOption {
   type: string;
   nextType?: string;
   data?: any;
+  metionText?: string;
 
   constructor(item: MentionMenuData) {
     super(item.title);
@@ -31,6 +34,7 @@ export class MentionMenuOption extends MenuOption {
     this.type = item.type;
     this.nextType = item.nextType;
     this.data = item.data;
+    this.metionText = item.metionText;
   }
 }
 

@@ -31,10 +31,11 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
   const onSelectOption = useCallback(
     (selectedOption: MentionMenuOption, nodeToReplace: TextNode | null, closeMenu: () => void) => {
       editor.update(() => {
-        const mentionNode = $createTextNode(`@${selectedOption.title} `);
+        const mentionNode = $createTextNode(` @${selectedOption.metionText} `);
         if (nodeToReplace) {
           nodeToReplace.replace(mentionNode);
         }
+        mentionNode.select(mentionNode.getTextContent().length, mentionNode.getTextContent().length);
         closeMenu();
       });
     },
@@ -95,7 +96,11 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
                     key={option.key}
                     option={option}
                     isSelected={index === selectedIndex}
-                    onClick={() => selectOptionAndCleanUp(option)}
+                    onClick={() => {
+                      
+                      selectOptionAndCleanUp(option);
+                      
+                    }}
                     onMouseEnter={() => {
                       setHighlightedIndex(index);
                     }}
