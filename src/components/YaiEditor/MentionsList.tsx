@@ -13,6 +13,11 @@ interface MentionsPluginProps {
   items: MentionItem[];
 }
 
+const MENU_ITEM_HEIGHT = 48; // Height of each menu item in pixels
+const LINE_HEIGHT = 18; // Assuming line height is 24px
+const MENU_MARGIN_TOP = 10; // Margin between menu and cursor
+const MENU_MARGIN_LEFT = 10; // Margin between menu and cursor
+
 export function MentionsPlugin({ items }: MentionsPluginProps) {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
@@ -89,6 +94,24 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
     };
   }, []);
 
+  const calculateMenuPosition = (anchorElement: HTMLElement, menuHeight: number) => {
+    const rect = anchorElement.getBoundingClientRect();
+    const spaceAbove = rect.top;
+    const twoLinesHeight = LINE_HEIGHT * 2;
+
+    if (spaceAbove >= menuHeight + twoLinesHeight + MENU_MARGIN_TOP) {
+      return {
+        top: -(menuHeight + LINE_HEIGHT + MENU_MARGIN_TOP),
+        left: MENU_MARGIN_LEFT,
+      };
+    }
+
+    return {
+      top: 0,
+      left: MENU_MARGIN_LEFT,
+    };
+  };
+
   return (
     <LexicalTypeaheadMenuPlugin<MentionMenuOption>
       onQueryChange={setQueryString}
@@ -98,28 +121,37 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
       menuRenderFn={(
         anchorElementRef,
         { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex }
-      ) =>
-        anchorElementRef.current && options.length > 0
-          ? createPortal(
-              <div className={styles.list}>
-                {options.map((option, index) => (
-                  <MentionMenuItem
-                    key={option.key}
-                    option={option}
-                    isSelected={index === selectedIndex}
-                    onClick={() => {
-                      selectOptionAndCleanUp(option);
-                    }}
-                    onMouseEnter={() => {
-                      setHighlightedIndex(index);
-                    }}
-                  />
-                ))}
-              </div>,
-              anchorElementRef.current
-            )
-          : null
-      }
+      ) => {
+        if (!anchorElementRef.current || options.length === 0) return null;
+
+        const menuHeight = Math.min(options.length * MENU_ITEM_HEIGHT, 200); // Max height of 200px
+        const position = calculateMenuPosition(anchorElementRef.current, menuHeight);
+
+        return createPortal(
+          <div 
+            className={styles.list}
+            style={{
+              position: 'absolute',
+              ...position,
+            }}
+          >
+            {options.map((option, index) => (
+              <MentionMenuItem
+                key={option.key}
+                option={option}
+                isSelected={index === selectedIndex}
+                onClick={() => {
+                  selectOptionAndCleanUp(option);
+                }}
+                onMouseEnter={() => {
+                  setHighlightedIndex(index);
+                }}
+              />
+            ))}
+          </div>,
+          anchorElementRef.current
+        );
+      }}
     />
   );
 } 
