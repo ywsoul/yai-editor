@@ -52,19 +52,21 @@ function MentionComponent({ text, node, nodeKey, editor }: { text: string; node:
   }, [editor, nodeKey, isSelected]);
 
   return (
-    <span
+    <span>
+      <span
       style={{
         backgroundColor: '#e8f5fe',
         color: '#0969da',
         padding: '0 2px',
         borderRadius: '2px',
-        borderWidth: 1,
         borderStyle: 'solid',
-        borderColor: isSelected ? 'red' : 'transparent',
         display: 'inline-flex',
+        lineHeight: 1,
+        borderColor: isSelected ? 'red' : 'transparent',
       }}
     >
       {text}
+    </span>
     </span>
   );
 }
