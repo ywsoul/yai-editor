@@ -61,6 +61,7 @@ function MentionComponent({ text, node, nodeKey, editor }: { text: string; node:
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: isSelected ? 'red' : 'transparent',
+        display: 'inline-flex',
       }}
     >
       {text}
