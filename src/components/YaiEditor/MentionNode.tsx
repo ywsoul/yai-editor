@@ -1,8 +1,8 @@
-import { DecoratorNode, EditorConfig, NodeKey, LexicalNode, LexicalEditor, $getSelection, $isRangeSelection, SELECTION_CHANGE_COMMAND } from 'lexical';
+import { DecoratorNode, EditorConfig, NodeKey, LexicalNode, LexicalEditor, $getSelection, $isRangeSelection, SELECTION_CHANGE_COMMAND, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND } from 'lexical';
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 
-function MentionComponent({ text, nodeKey, editor }: { text: string; nodeKey: string; editor: LexicalEditor }): ReactNode {
+function MentionComponent({ text, node, nodeKey, editor }: { text: string; node: any,  nodeKey: string; editor: LexicalEditor }): ReactNode {
   const [isSelected, setSelected] = useState(false);
   const [isNodeSelected, setNodeSelection, clearNodeSelection] = useLexicalNodeSelection(nodeKey);
 
@@ -12,15 +12,44 @@ function MentionComponent({ text, nodeKey, editor }: { text: string; nodeKey: st
       () => {
         const selection = $getSelection();
         if (selection) {
-            console.log('selection', selection, nodeKey, text, selection.getNodes());
-            const focus = selection.getNodes().some((node) => node.__key === nodeKey);
-            setSelected(focus);
+          const focus = selection.getNodes().find((node) => node.__key === nodeKey);
+          console.log('SELECTION_CHANGE_COMMAND', focus);
+          setSelected(!!focus);
         }
         return false;
       },
       0
     );
   }, [editor, nodeKey]);
+
+  useEffect(() => {
+    const removeDeleteListener = editor.registerCommand(
+      KEY_DELETE_COMMAND,
+      () => {
+        if (isSelected) {
+            node.remove();
+        }
+        return false;
+      },
+      0
+    );
+
+    const removeBackspaceListener = editor.registerCommand(
+      KEY_BACKSPACE_COMMAND,
+      () => {
+        if (isSelected) {
+            node.remove();
+        }
+        return false;
+      },
+      0
+    );
+
+    return () => {
+      removeDeleteListener();
+      removeBackspaceListener();
+    };
+  }, [editor, nodeKey, isSelected]);
 
   return (
     <span
@@ -65,7 +94,7 @@ export class MentionNode extends DecoratorNode<ReactNode> {
   }
 
   decorate(editor: LexicalEditor): ReactNode {
-    return <MentionComponent text={this.__text} nodeKey={this.__key} editor={editor} />;
+    return <MentionComponent text={this.__text} node={this} nodeKey={this.__key} editor={editor} />;
   }
 
   isInline(): boolean {

@@ -108,9 +108,7 @@ export function MentionsPlugin({ items }: MentionsPluginProps) {
                     option={option}
                     isSelected={index === selectedIndex}
                     onClick={() => {
-                      
                       selectOptionAndCleanUp(option);
-                      
                     }}
                     onMouseEnter={() => {
                       setHighlightedIndex(index);
